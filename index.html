@@ -509,7 +509,7 @@ window.app = (() => {
     const dots = document.querySelectorAll('.q-dot');
     if (dots[curQuiz.idx - 1]) {
       dots[curQuiz.idx - 1].classList.remove('current');
-      dots[curQuiz.idx - 1].classList.add(curQuiz.wrong > 0 && curQuiz.idx - 1 === /* approximate */ curQuiz.idx - 1 ? '' : 'done');
+      dots[curQuiz.idx - 1].classList.add('done');
     }
     renderQuestion();
   }
@@ -584,7 +584,7 @@ window.app = (() => {
     else if (pct < 50) msg = '再接再厉！🌱';
     $('result-msg').textContent = msg;
     $('res-correct').textContent = curQuiz.correct;
-    ('res-wrong').textContent = curQuiz.wrong;
+    $('res-wrong').textContent = curQuiz.wrong;
     $('res-xp').textContent = '+' + curQuiz.earnedXP;
 
     switchScreen('screen-result');
