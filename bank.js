@@ -301,12 +301,12 @@ const GRAMMAR_BANK = [
 // ══════════════════════════════════════════
 // 25. QUESTION TAGS — 反意疑问句 (PET ★★★)
 // ══════════════════════════════════════════
-{ id:198, level:'PET', topic:'Question Tags', q:'You are coming, ___ ?',['aren\'t you','are you','don\'t you'], answer:0, explanation:'前肯后否：You are coming → aren\'t you?' },
-{ id:199, level:'PET', topic:'Question Tags', q:'She can\'t swim, ___ ?', ['can she','can\'t she','doesn\'t she'], answer:0, explanation:'前否后肯：She can\'t swim → can she?' },
-{ id:200, level:'PET', topic:'Question Tags', q:'It\'s a beautiful day, ___ ?', ["isn't it","is it","doesn't it"], answer:0, explanation:'It\'s... → isn\'t it?（最常用的反义疑问句尾）' },
-{ id:201, level:'PET', topic:'Question Tags', q:'They went to London, ___ ?', ['didn\'t they','did they','don\'t they'], answer:0, explanation:'过去时 went → didn\'t they?（前肯后否）' },
-{ id:202, level:'PET', topic:'Question Tags', q:'You won\'t tell anyone, ___ ?',['will you','won\'t you','do you'], answer:0, explanation:"won't → will you?（前否后肯）" },
-{ id:203, level:'PET', topic:'Question Tags', q:'Let\'s go shopping, ___ ?', ['shall we','will we','don\'t we'], answer:0, explanation:'Let\'s... → shall we?（提议一起做某事）' },
+{ id:198, level:'PET', topic:'Question Tags', q:'You are coming, ___ ?',options:['aren\'t you','are you','don\'t you'], answer:0, explanation:'前肯后否：You are coming → aren\'t you?' },
+{ id:199, level:'PET', topic:'Question Tags', q:'She can\'t swim, ___ ?',options: ['can she','can\'t she','doesn\'t she'], answer:0, explanation:'前否后肯：She can\'t swim → can she?' },
+{ id:200, level:'PET', topic:'Question Tags', q:'It\'s a beautiful day, ___ ?',options: ["isn't it","is it","doesn't it"], answer:0, explanation:'It\'s... → isn\'t it?（最常用的反义疑问句尾）' },
+{ id:201, level:'PET', topic:'Question Tags', q:'They went to London, ___ ?',options: ['didn\'t they','did they','don\'t they'], answer:0, explanation:'过去时 went → didn\'t they?（前肯后否）' },
+{ id:202, level:'PET', topic:'Question Tags', q:'You won\'t tell anyone, ___ ?',options:['will you','won\'t you','do you'], answer:0, explanation:"won't → will you?（前否后肯）" },
+{ id:203, level:'PET', topic:'Question Tags', q:'Let\'s go shopping, ___ ?',options: ['shall we','will we','don\'t we'], answer:0, explanation:'Let\'s... → shall we?（提议一起做某事）' },
 
 // ══════════════════════════════════════════
 // 26. MODALS OF DEDUCTION — 推测情态动词 (PET ★★★)
@@ -342,7 +342,7 @@ const GRAMMAR_BANK = [
 // 29. EMBEDDED QUESTIONS — 嵌套/间接疑问句 (PET ★★★)
 // ══════════════════════════════════════════
 { id:222, level:'PET', topic:'Embedded Questions', q:'I don\'t know where ___.', options:['he is','is he','does he'], answer:0, explanation:'嵌入疑问句用陈述语序（主语在前，谓语在后），不用倒装' },
-{ id:223, level:'PET', topic:'Embedded Questions', q:'Can you tell me what time ___ ?', ['it is','is it','it was'], answer:0, explanation:'间接疑问句保持陈述语序 it is（不是 is it）' },
+{ id:223, level:'PET', topic:'Embedded Questions', q:'Can you tell me what time ___ ?',options: ['it is','is it','it was'], answer:0, explanation:'间接疑问句保持陈述语序 it is（不是 is it）' },
 { id:224, level:'PET', topic:'Embedded Questions', q:'Do you remember how we ___ to the station?', options:['got','did get','get'], answer:0, explanation:'how we got（陈述语序：we + got）' },
 { id:225, level:'PET', topic:'Embedded Questions', q:'I wonder why she ___ angry with me.', options:['was','is','did'], answer:0, explanation:'wonder 后接从句用陈述语序 she was（不是 was she）' },
 
