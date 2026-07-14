@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Grammar Quest · KET & PET</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grammar Quest">
+<meta name="theme-color" content="#4F46E5">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#4F46E5;--primary-light:#6366F1;--primary-dark:#3730A3;
+  --accent:#06B6D4;--success:#10B981;--danger:#EF4444;
+  --warning:#F59E0B;--bg:#F8FAFC;--card:#FFFFFF;
+  --text:#1E293B;--text2:#64748B;--border:#E2E8F0;
+  --radius:16px;--radius-sm:12px;--radius-xs:8px;
+}
+html,body{height:100%;font-family:-apple-system,'SF Pro','Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);overflow:hidden;-webkit-tap-highlight-color:transparent}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+
+/* ── Layout Shell ── */
+.app{max-width:680px;margin:0 auto;height:100%;position:relative;display:flex;flex-direction:column}
+.screen{display:none;flex:1;flex-direction:column;overflow-y:auto;padding:20px;
+  -webkit-overflow-scrolling:touch;animation:fadeIn .25s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-120vh) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+/* ── Header ── */
+.header{display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px}
+.header h1{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .stats-row{display:flex;gap:12px;font-size:13px;color:var(--text2)}
+.stat-pill{background:var(--card);padding:5px 14px;border-radius:99px;border:1px solid var(--border);
+  font-weight:600;display:flex;align-items:center;gap:4px}
+
+/* ── Cards ── */
+.card{background:var(--card);border-radius:var(--radius);padding:18px;border:1px solid var(--border);
+  box-shadow:0 2px 8px rgba(0,0,0,.04);transition:transform .15s,box-shadow .15s}
+.card:active,.card.tap{transform:scale(.97)}
+.card-lg{padding:24px}
+
+/* ── Home / Mode Cards ── */
+.modes-grid{display:flex;flex-direction:column;gap:14px;margin-top:8px}
+.mode-card{cursor:pointer;border-radius:var(--radius);padding:22px;display:flex;align-items:center;gap:18px;
+  border:2px solid transparent;transition:all .2s}
+.mode-card:hover,.mode-card:active{border-color:var(--primary-light);transform:scale(.98);
+  box-shadow:0 4px 16px rgba(79,70,229,.12)}
+.mode-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:28px;flex-shrink:0}
+.mode-info h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.mode-info p{font-size:13px;color:var(--text2);line-height:1.4}
+.mode-badge{margin-left:auto;font-size:12px;font-weight:700;padding:4px 12px;border-radius:99px;
+  background:rgba(79,70,229,.1);color:var(--primary)}
+
+/* ── Topic Grid ── */
+.topics-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.topic-card{cursor:pointer;text-align:center;padding:16px 10px;border-radius:var(--radius-sm);transition:.2s;
+  background:var(--card);border:2px solid var(--border)}
+.topic-card:hover,.topic-card:active{border-color:var(--primary-light);transform:scale(.96)}
+.topic-name{font-size:13.5px;font-weight:600;margin-bottom:6px;line-height:1.3}
+.topic-level{font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;display:inline-block;margin-bottom:4px}
+.topic-ket{background:rgba(16,185,129,.12);color:#059669}
+.topic-pet{background:rgba(79,70,229,.1);color:var(--primary-dark)}
+.topic-progress{height:6px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden}
+.topic-progress-bar{height:100%;border-radius:3px;transition:width .4s;background:linear-gradient(90deg,var(--primary),var(--accent))}
+
+/* ── Quiz Screen ── */
+.quiz-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px}
+.quiz-progress{display:flex;gap:4px;flex:1;margin-right:16px}
+.q-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:.3s}
+.q-dot.done{background:var(--success)}.q-dot.wrong{background:var(--danger)}.q-dot.current{background:var(--primary);animation:pulse 1s infinite}
+.hearts{display:flex;gap:3px}.heart{font-size:18px;transition:.2s}
+.hearts .heart.lost{opacity:.15;filter:grayscale(1)}
+
+.question-box{background:var(--card);border-radius:var(--radius);padding:22px;margin-bottom:16px;
+  border:2px solid var(--border);min-height:110px;display:flex;align-items:center}
+.question-text{font-size:17px;font-weight:600;line-height:1.55;white-space:pre-line}
+
+.options-list{display:flex;flex-direction:column;gap:10px}
+.option-btn{width:100%;padding:16px 20px;border-radius:var(--radius-sm);border:2px solid var(--border);
+  background:var(--card);font-size:15.5px;font-weight:500;text-align:left;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px}
+.option-btn .opt-letter{width:32px;height:32px;border-radius:50%;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.option-btn:active{transform:scale(.97)}
+.option-btn.correct{border-color:var(--success);background:rgba(16,185,129,.07);animation:pop .35s}
+.option-btn.wrong{border-color:var(--danger);background:rgba(239,68,68,.07);animation:shake .4s}
+.option-btn.disabled{pointer-events:none;opacity:.7}
+
+.explain-box{margin-top:14px;background:var(--card);border-radius:var(--radius-sm);padding:16px;
+  border-left:4px solid var(--accent);display:none;animation:fadeIn .3s}
+.explain-box.show{display:block}
+.explain-label{font-size:11.5px;font-weight:700;color:var(--accent);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:4px}
+.explain-text{font-size:14px;line-height:1.5;color:var(--text2)}
+
+.next-btn{margin-top:16px;width:100%;padding:16px;border-radius:var(--radius-sm);border:none;
+  background:var(--primary);color:#fff;font-size:16px;font-weight:700;cursor:pointer;
+  transition:all .2s;display:none;animation:pop .3s}
+.next-btn.show{display:block}
+.next-btn:active{transform:scale(.97);background:var(--primary-dark)}
+
+/* ── Results ── */
+.result-center{text-align:center;padding:30px 0}
+.result-score{font-size:64px;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1}
+.result-label{font-size:15px;color:var(--text2);margin-bottom:20px}
+.result-stats{display:flex;justify-content:center;gap:24px;margin:20px 0}
+.result-stat{text-align:center}
+.result-stat-num{font-size:28px;font-weight:800;color:var(--primary)}
+.result-stat-label{font-size:12px;color:var(--text2)}
+.btn{display:inline-block;padding:14px 28px;border-radius:var(--radius-sm);border:none;
+  font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;width:100%;
+  max-width:320px;margin:8px auto}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:active{transform:scale(.96);background:var(--primary-dark)}
+.btn-outline{background:transparent;color:var(--primary);border:2px solid var(--primary)}
+.btn-outline:active{transform:scale(.96);background:rgba(79,70,229,.05)}
+.btn-group{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+
+/* ── Wrong Bank ── */
+.wrong-empty{text-align:center;padding:40px 20px;color:var(--text2)}
+.wrong-empty-icon{font-size:48px;margin-bottom:12px}
+.wrong-item{background:var(--card);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px;
+  border-left:4px solid var(--danger);border:1px solid var(--border);border-left:4px solid var(--danger)}
+.wrong-q{font-size:14.5px;font-weight:600;margin-bottom:6px;line-height:1.45}
+.wrong-meta{display:flex;gap:12px;font-size:12px;color:var(--text2);margin-bottom:6px}
+.wrong-tag{padding:2px 8px;border-radius:99px;font-weight:600}
+.wrong-review-btn{width:100%;padding:12px;margin-top:6px;border-radius:var(--radius-xs);border:none;
+  background:var(--primary);color:#fff;font-size:13.5px;font-weight:700;cursor:pointer}
+.wrong-review-btn:active{transform:scale(.96)}
+
+/* ── Stats Page ── */
+.stats-overview{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.stats-num{font-size:26px;font-weight:900;color:var(--primary)}
+.stats-lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.3px}
+.topic-stat-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.topic-stat-bar{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.topic-stat-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .5s}
+
+/* ── Back button ── */
+.back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;
+  color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;padding:4px 0;margin-bottom:8px}
+
+/* ── Confetti container ── */
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:16px;border-radius:2px;animation:confetti 3s linear forwards}
+
+/* ── Level badge ── */
+.level-select{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.level-tab{padding:8px 20px;border-radius:99px;border:2px solid var(--border);background:var(--card);
+  font-weight:700;font-size:14px;cursor:pointer;transition:.2s}
+.level-tab.active{border-color:var(--primary);background:var(--primary);color:#fff}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══════ HOME ═════ -->
+<div id="screen-home" class="screen active">
+  <div class="header">
+    <h1>Grammar Quest</h1>
+    <div class="stats-row">
+      <span class="stat-pill">🔥 <span id="home-streak">0</span></span>
+      <span class="stat-pill">⭐ <span id="home-xp">0</span></span>
+    </div>
+  </div>
+  <div class="modes-grid">
+    <div class="mode-card" onclick="app.showTopics()">
+      <div class="mode-icon" style="background:linear-gradient(135deg,#4F46E5,#6366F1)">🎯</div>
+      <div class="mode-info"><h2>闯关挑战</h2><p>按语法点逐关攻克，从KET到PET</p></div>
+      <span class="mode-badge" id="home-topics-done">0/30</span>
+    </div>
+    <div class="mode-card" onclick="app.startRandom()">
+      <div class="mode-icon" style="background:linear-gradient(135deg,#06B6D4,#22D3EE)">🎲</div>
+      <div class="mode-info"><h2>随机练习</h2><p>混合所有题型，随时练手</p></div>
+    </div>
+    <div class="mode-card" onclick="app.showWrongBank()">
+      <div class="mode-icon" style="background:linear-gradient(135deg,#F59E0B,#FBBF24)">📝</div>
+      <div class="mode-info"><h2>错题重做</h2><p>智能间隔复习，消灭错题</p></div>
+      <span class="mode-badge" id="home-wrong-count">0 道待复习</span>
+    </div>
+    <div class="mode-card" onclick="app.showStats()">
+      <div class="mode-icon" style="background:linear-gradient(135deg,#10B981,#34D399)">📊</div>
+      <div class="mode-info"><h2>学习统计</h2><p>掌握度、正确率、进度总览</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ TOPICS SELECT ═════ -->
+<div id="screen-topics" class="screen">
+  <button class="back-btn" onclick="app.goHome()">← 返回首页</button>
+  <div class="header"><h1>选择关卡</h1></div>
+  <div class="level-select">
+    <button class="level-tab active" data-lv="ALL" onclick="app.filterLevel('ALL')">全部</button>
+    <button class="level-tab" data-lv="KET" onclick="app.filterLevel('KET')">KET (A2)</button>
+    <button class="level-tab" data-lv="PET" onclick="app.filterLevel('PET')">PET (B1)</button>
+  </div>
+  <div class="topics-grid" id="topics-grid"></div>
+</div>
+
+<!-- ═══════ QUIZ ═════ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="app.exitQuiz()">✕ 退出</button>
+    <div class="hearts" id="quiz-hearts"></div>
+  </div>
+  <div class="quiz-progress" id="quiz-progress"></div>
+  <div class="question-box">
+    <div class="question-text" id="quiz-q"></div>
+  </div>
+  <div class="options-list" id="quiz-options"></div>
+  <div class="explain-box" id="quiz-explain">
+    <div class="explain-label">💡 解析</div>
+    <div class="explain-text" id="quiz-explain-text"></div>
+  </div>
+  <button class="next-btn" id="next-btn" onclick="app.nextQuestion()">下一题 →</button>
+</div>
+
+<!-- ═══════ RESULTS ═════ -->
+<div id="screen-result" class="screen">
+  <div class="result-center">
+    <div class="result-score" id="result-score"></div>
+    <div class="result-label" id="result-msg"></div>
+    <div class="result-stats">
+      <div class="result-stat"><div class="result-stat-num" id="res-correct">0</div><div class="result-stat-label">答对</div></div>
+      <div class="result-stat"><div class="result-stat-num" id="res-wrong">0</div><div class="result-stat-label">答错</div></div>
+      <div class="result-stat"><div class="result-stat-num" id="res-xp">+0</div><div class="result-stat-label">获得经验</div></div>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="app.retryQuiz()">再来一次</button>
+    <button class="btn btn-outline" onclick="app.goHome()">返回首页</button>
+  </div>
+</div>
+
+<!-- ═══════ WRONG BANK ═════ -->
+<div id="screen-wrong" class="screen">
+  <button class="back-btn" onclick="app.goHome()">← 返回首页</button>
+  <div class="header"><h1>错题本</h1></div>
+  <div id="wrong-list"></div>
+</div>
+
+<!-- ═══════ STATS ═════ -->
+<div id="screen-stats" class="screen">
+  <button class="back-btn" onclick="app.goHome()">← 返回首页</button>
+  <div class="header"><h1>学习统计</h1></div>
+  <div class="stats-overview card card-lg">
+    <div class="stat-cell text-center"><div class="stats-num" id="st-total">0</div><div class="stats-lbl">总答题数</div></div>
+    <div class="stat-cell text-center"><div class="stats-num" id="st-correct">0%</div><div class="stats-lbl">正确率</div></div>
+    <div class="stat-cell text-center"><div class="stats-num" id="st-streak">0</div><div class="stats-lbl">最长连续</div></div>
+  </div>
+  <h3 style="font-size:16px;margin:16px 0 10px">各语法点掌握度</h3>
+  <div id="stats-topic-list"></div>
+</div>
+
+<div class="confetti-container" id="confetti"></div>
+</div>
+
+<script src="bank.js"></script>
+<script>
+/* ============================================================
+   Grammar Quest App — KET & PET Grammar Game
+   Features: level challenges, random quiz, spaced-repetition
+   wrong-answer review, progress tracking, gamification
+   ============================================================ */
+
+const app = (() => {
+  const $ = s => document.getElementById(s);
+  const LS_KEY = 'gquest_v2';
+  // State
+  let state, curQuiz = null;
+
+  function defaultState() {
+    return {
+      xp: 0,
+      streak: 0,
+      streakDate: null,
+      totalAnswered: 0,
+      totalCorrect: 0,
+      maxStreak: 0,
+      topicMastery: {},     // { topicId: { correct, total } }
+      wrongBank: [],        // [{ qId, wrongCount, correctStreak, lastWrong, nextReview, mastered }]
+      settings: { hearts: 5, questionsPerRound: 10 }
+    };
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch(e){}
+    return defaultState();
+  }
+
+  function saveState() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){} }
+
+  function init() {
+    state = loadState();
+    checkStreak();
+    renderHome();
+    registerSW();
+  }
+
+  /* ── Streak ── */
+  function checkStreak() {
+    const today = new Date().toDateString();
+    if (state.streakDate === today) return;
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (state.streakDate === yesterday) state.streak++;
+    else if (state.streakDate !== today) state.streak = 1;
+    state.streakDate = today;
+    saveState();
+  }
+
+  /* ─── Topics ─── */
+  function getTopics() {
+    const map = {};
+    GRAMMAR_BANK.forEach(q => {
+      if (!map[q.topic]) map[q.topic] = { topic: q.topic, level: q.level, count: 0, ids: [] };
+      map[q.topic].count++;
+      map[q.topic].ids.push(q.id);
+    });
+    return Object.values(map).sort((a,b)=>a.topic.localeCompare(b.topic));
+  }
+
+  function getTopicProgress(topic) {
+    const m = state.topicMastery[topic];
+    if (!m || m.total === 0) return 0;
+    return Math.min(100, Math.round((m.correct / m.total) * 100));
+  }
+
+  function renderTopics(filterLv) {
+    const grid = $('topics-grid');
+    grid.innerHTML = '';
+    const topics = getTopics();
+    const filtered = filterLv === 'ALL' ? topics : topics.filter(t => t.level === filterLv);
+    filtered.forEach(t => {
+      const pct = getTopicProgress(t.topic);
+      const cls = t.level === 'KET' ? 'topic-ket' : 'topic-pet';
+      grid.innerHTML += `
+        <div class="topic-card" onclick="app.startTopic('${t.topic}')">
+          <div class="topic-level ${cls}">${t.level}</div>
+          <div class="topic-name">${t.topic}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${t.count} 题</div>
+          <div class="topic-progress"><div class="topic-progress-bar" style="width:${pct}%"></div></div>
+        </div>`;
+    });
+  }
+
+  /* ─── Quiz Engine ─── */
+  function startQuiz(questions, modeName) {
+    curQuiz = {
+      questions: shuffle([...questions]).slice(0, state.settings.questionsPerRound),
+      idx: 0,
+      correct: 0,
+      wrong: 0,
+      earnedXP: 0,
+      hearts: state.settings.hearts,
+      mode: modeName || 'practice',
+      answered: false
+    };
+    if (curQuiz.questions.length === 0) { alert('该分类暂无题目'); goHome(); return; }
+    switchScreen('screen-quiz');
+    renderHearts();
+    renderQuestion();
+  }
+
+  function renderHearts() {
+    const el = $('quiz-hearts');
+    el.innerHTML = '';
+    for (let i = 0; i < state.settings.hearts; i++) {
+      const sp = document.createElement('span');
+      sp.className = 'heart' + (i >= curQuiz.hearts ? ' lost' : '');
+      sp.textContent = i < curQuiz.hearts ? '❤️' : '🖤';
+      el.appendChild(sp);
+    }
+  }
+
+  function renderQuestion() {
+    const q = curQuiz.questions[curQuiz.idx];
+    $('quiz-q').textContent = q.q;
+    // Dots
+    const dots = $('quiz-progress');
+    dots.innerHTML = curQuiz.questions.map((_,i) =>
+      `<div class="q-dot ${i<curQuiz.idx?'done':i===curQuiz.idx?'current':''}"></div>`
+    ).join('');
+    // Options
+    const optsEl = $('quiz-options');
+    optsEl.innerHTML = '';
+    const letters = ['A','B','C'];
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
+      btn.onclick = () => handleAnswer(i, btn, q);
+      optsEl.appendChild(btn);
+    });
+    $('quiz-explain').classList.remove('show');
+    $('next-btn').classList.remove('show');
+    curQuiz.answered = false;
+  }
+
+  function handleAnswer(choiceIdx, btnEl, question) {
+    if (curQuiz.answered) return;
+    curQuiz.answered = true;
+    const isCorrect = choiceIdx === question.answer;
+    const buttons = document.querySelectorAll('.option-btn');
+
+    // Disable all
+    buttons.forEach(b => b.classList.add('disabled'));
+
+    // Mark correct/wrong
+    if (isCorrect) {
+      btnEl.classList.add('correct');
+      curQuiz.correct++;
+      curQuiz.earnedXP += 10;
+      recordResult(question, true);
+    } else {
+      btnEl.classList.add('wrong');
+      // Show correct answer
+      buttons[question.answer].classList.add('correct');
+      curQuiz.wrong++;
+      if (curQuiz.hearts > 0) curQuiz.hearts--;
+      renderHearts();
+      recordResult(question, false);
+    }
+
+    // Show explanation
+    $('quiz-explain-text').textContent = question.explanation;
+    $('quiz-explain').classList.add('show');
+    $('next-btn').classList.add('show');
+
+    // Auto-advance or end
+    if (curQuiz.idx >= curQuiz.questions.length - 1) {
+      $('next-btn').textContent = '查看结果 →';
+    } else {
+      $('next-btn').textContent = '下一题 →';
+    }
+  }
+
+  function nextQuestion() {
+    if (curQuiz.idx >= curQuiz.questions.length - 1) {
+      showResults(); return;
+    }
+    curQuiz.idx++;
+    // Update dots for previous
+    const dots = document.querySelectorAll('.q-dot');
+    if (dots[curQuiz.idx - 1]) {
+      dots[curQuiz.idx - 1].classList.remove('current');
+      dots[curQuiz.idx - 1].classList.add(curQuiz.wrong > 0 && curQuiz.idx - 1 === /* approximate */ curQuiz.idx - 1 ? '' : 'done');
+    }
+    renderQuestion();
+  }
+
+  /* ─── Record result & spaced repetition ─── */
+  function recordResult(q, isCorrect) {
+    state.totalAnswered++;
+    if (isCorrect) state.totalCorrect++;
+
+    // Topic mastery
+    if (!state.topicMastery[q.topic])
+      state.topicMastery[q.topic] = { correct: 0, total: 0 };
+    state.topicMastery[q.topic].total++;
+    if (isCorrect) state.topicMastery[q.topic].correct++;
+
+    // Wrong bank logic
+    const existing = state.wrongBank.find(w => w.qId === q.id);
+    if (isCorrect) {
+      if (existing) {
+        existing.correctStreak++;
+        // If mastered enough, remove from rotation
+        if (existing.correctStreak >= 3) {
+          existing.mastered = true;
+          existing.nextReview = Date.now() + 999999999; // far future
+        } else {
+          // Increase interval: 1d -> 3d -> 7d -> 15d
+          const intervals = [86400000, 25920000, 60480000, 129600000];
+          const lvl = Math.min(existing.correctStreak - 1, intervals.length - 1);
+          existing.nextReview = Date.now() + intervals[lvl];
+        }
+      }
+    } else {
+      if (existing) {
+        existing.wrongCount++;
+        existing.correctStreak = 0;
+        existing.lastWrong = Date.now();
+        existing.mastered = false;
+        // Shorter retry: 10min, 1hr, 6hr, then daily
+        const retries = [600000, 3600000, 21600000, 86400000];
+        const rIdx = Math.min(existing.wrongCount - 1, retries.length - 1);
+        existing.nextReview = Date.now() + retries[rIdx];
+      } else {
+        state.wrongBank.push({
+          qId: q.id,
+          wrongCount: 1,
+          correctStreak: 0,
+          lastWrong: Date.now(),
+          nextReview: Date.now() + 600000, // first retry in 10 min
+          mastered: false
+        });
+      }
+    }
+
+    // Update streak
+    if (isCorrect) {
+      if (curQuiz && curQuiz.idx > 0 && /* was prev correct */ true) {}
+    }
+    saveState();
+  }
+
+  /* ─── Results ─── */
+  function showResults() {
+    state.xp += curQuiz.earnedXP;
+    if (curQuiz.correct === curQuiz.questions.length) fireConfetti();
+    saveState();
+
+    const pct = Math.round(curQuiz.correct / curQuiz.questions.length * 100);
+    $('result-score').textContent = `${pct}%`;
+    let msg = '继续加油！';
+    if (pct >= 90) msg = '太棒了！🎉';
+    else if (pct >= 70) msg = '不错哦！💪';
+    else if (pct < 50) msg = '再接再厉！🌱';
+    $('result-msg').textContent = msg;
+    $('res-correct').textContent = curQuiz.correct;
+    ('res-wrong').textContent = curQuiz.wrong;
+    $('res-xp').textContent = '+' + curQuiz.earnedXP;
+
+    switchScreen('screen-result');
+  }
+
+  /* ─── Wrong Bank ─── */
+  function showWrongBank() {
+    switchScreen('screen-wrong');
+    const list = $('wrong-list');
+    const dueItems = state.wrongBank.filter(w =>
+      !w.mastered && w.nextReview <= Date.now()
+    );
+
+    if (dueItems.length === 0) {
+      list.innerHTML = `
+        <div class="wrong-empty">
+          <div class="wrong-empty-icon">🎉</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:6px">没有待复习的错题！</div>
+          <div style="font-size:13px;color:var(--text2)">继续保持，你做得很棒！</div>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = '';
+    dueItems.forEach(w => {
+      const q = GRAMMAR_BANK.find(x => x.id === w.qId);
+      if (!q) return;
+      const minsAgo = Math.round((Date.now() - w.lastWrong) / 60000);
+      const timeStr = minsAgo < 60 ? `${minsAgo}分钟前` : `${Math.round(minsAgo/60)}小时前`;
+      const div = document.createElement('div');
+      div.className = 'wrong-item';
+      div.innerHTML = `
+        <div class="wrong-q">${q.q.replace(/\n/g, '<br>')}</div>
+        <div class="wrong-meta">
+          <span class="wrong-tag topic-${q.level}">${q.level}</span>
+          <span>${q.topic}</span>
+          <span>错了 ${w.wrongCount} 次</span>
+          <span>${timeStr}</span>
+        </div>
+        <button class="wrong-review-btn" onclick="app.startWrongReview(${w.qId})">立即重做此题</button>`;
+      list.appendChild(div);
+    });
+
+    // "Review All" button at top
+    const reviewAll = document.createElement('button');
+    reviewAll.className = 'btn btn-primary';
+    reviewAll.style.marginBottom = '16px';
+    reviewAll.textContent = `一键复习 ${dueItems.length} 道错题`;
+    reviewAll.onclick = () => startWrongReviewAll(dueItems);
+    list.insertBefore(reviewAll, list.firstChild);
+  }
+
+  function startWrongReview(qId) {
+    const q = GRAMMAR_BANK.find(x => x.id === qId);
+    if (q) startQuiz([q], 'review');
+  }
+
+  function startWrongReviewAll(dueItems) {
+    const qs = dueItems.map(w => GRAMMAR_BANK.find(x => x.id === w.qId)).filter(Boolean);
+    if (qs.length) startQuiz(qs, 'review-all');
+  }
+
+  /* ─── Stats ─── */
+  function showStats() {
+    switchScreen('screen-stats');
+    $('st-total').textContent = state.totalAnswered;
+    $('st-correct').textContent = state.totalAnswered > 0
+      ? Math.round(state.totalCorrect / state.totalAnswered * 100) + '%' : '0%';
+    $('st-streak').textContent = state.maxStreak || state.streak;
+
+    const tl = $('stats-topic-list');
+    tl.innerHTML = '';
+    const topics = getTopics();
+    topics.sort((a,b) => getTopicProgress(b.topic) - getTopicProgress(a.topic)).forEach(t => {
+      const pct = getTopicProgress(t.topic);
+      const div = document.createElement('div');
+      div.className = 'topic-stat-item';
+      div.innerHTML = `
+        <span style="font-size:13px;font-weight:600;min-width:140px">${t.topic}</span>
+        <div class="topic-stat-bar"><div class="topic-stat-fill" style="width:${pct}%"></div></div>
+        <span style="font-size:13px;font-weight:700;color:var(--primary);min-width:38px;text-align:right">${pct}%</span>`;
+      tl.appendChild(div);
+    });
+  }
+
+  /* ─── Navigation ─── */
+  function goHome() { switchScreen('screen-home'); renderHome(); }
+  function exitQuiz() {
+    if (confirm('确定退出当前练习吗？进度不会保存。')) goHome();
+  }
+  function retryQuiz() {
+    if (curQuiz) startQuiz(curQuiz.questions.map(idOrQ =>
+      typeof idOrQ === 'object' ? idOrQ : GRAMMAR_BANK.find(q => q.id === idOrQ)), curQuiz.mode);
+  }
+
+  function switchScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    $(id).classList.add('active');
+  }
+
+  function showTopics() { switchScreen('screen-topics'); renderTopics('ALL'); }
+  function filterLevel(lv) {
+    document.querySelectorAll('.level-tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.lv === lv)
+    );
+    renderTopics(lv);
+  }
+
+  function startRandom() {
+    startQuiz(GRAMMAR_BANK, 'random');
+  }
+
+  function startTopic(topic) {
+    const qs = GRAMMAR_BANK.filter(q => q.topic === topic);
+    startQuiz(qs, topic);
+  }
+
+  function renderHome() {
+    $('home-streak').textContent = state.streak;
+    $('home-xp').textContent = state.xp;
+    const topics = getTopics();
+    const done = topics.filter(t => getTopicProgress(t.topic) >= 80).length;
+    $('home-topics-done').textContent = `${done}/${topics.length}`;
+    const dueCount = state.wrongBank.filter(w => !w.mastered && w.nextReview <= Date.now()).length;
+    $('home-wrong-count').textContent = `${dueCount} 道待复习`;
+
+    // update max streak
+    if (state.streak > (state.maxStreak||0)) { state.maxStreak = state.streak; saveState(); }
+  }
+
+  /* ─── Utils ─── */
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function fireConfetti() {
+    const c = $('confetti');
+    c.innerHTML = '';
+    const colors = ['#4F46E5','#06B6D4','#10B981','#F59E0B','#EF4444','#EC4899','#8B5CF6'];
+    for (let i = 0; i < 50; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.cssText = `left:${Math.random()*100}%;top:100%;background:${colors[Math.floor(Math.random()*colors.length)]};
+        width:${6+Math.random()*8}px;height:${10+Math.random()*14}px;
+        animation-delay:${Math.random()*1.5}s;animation-duration:${2+Math.random()*2}s;`;
+      c.appendChild(p);
+    }
+    setTimeout(() => { c.innerHTML = ''; }, 4000);
+  }
+
+  function registerSW() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    }
+  }
+
+  // Public API
+  init();
+  return {
+    goHome, exitQuiz, retryQuiz, showTopics, filterLevel, startRandom,
+    startTopic, showWrongBank, showStats, startWrongReview, startWrongReviewAll
+  };
+})();
+</script>
+</body>
+</html>
