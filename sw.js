@@ -1,4 +1,4 @@
-const CACHE = 'gquest-v6';
+const CACHE = 'gquest-v7';
 const FILES = ['./', 'index.html', 'bank.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
