@@ -285,6 +285,45 @@ window.app = (() => {
   // State
   let state, curQuiz = null;
 
+  /* ─── Sound effects (Web Audio API, no external files) ─── */
+  let audioCtx = null;
+  function getCtx() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch (e) { return null; }
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+  function beep(freq, dur, type, vol) {
+    const ctx = getCtx(); if (!ctx) return;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    const v = vol || 0.08;
+    g.gain.value = v;
+    o.connect(g); g.connect(ctx.destination);
+    const t = ctx.currentTime;
+    o.start(t);
+    g.gain.setValueAtTime(v, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.stop(t + dur);
+  }
+  function snd(name) {
+    if (name === 'click') {
+      beep(440, 0.05, 'triangle', 0.05);
+    } else if (name === 'correct') {
+      beep(660, 0.12, 'sine', 0.09);
+      setTimeout(() => beep(880, 0.16, 'sine', 0.09), 110);
+    } else if (name === 'wrong') {
+      beep(190, 0.24, 'sawtooth', 0.07);
+    } else if (name === 'win') {
+      [523, 659, 784, 1047].forEach((f, i) =>
+        setTimeout(() => beep(f, 0.20, 'sine', 0.09), i * 120));
+    }
+  }
+
   function defaultState() {
     return {
       xp: 0,
@@ -314,6 +353,11 @@ window.app = (() => {
     checkStreak();
     renderHome();
     registerSW();
+    // global soft click sound for navigation buttons (not option buttons)
+    document.addEventListener('click', e => {
+      const t = e.target.closest('.btn, .topic-card, .home-btn, .level-tab, .wrong-review-btn, .wrong-item button');
+      if (t) snd('click');
+    }, true);
   }
 
   /* ── Streak ── */
@@ -418,6 +462,7 @@ window.app = (() => {
   function handleAnswer(choiceIdx, btnEl, question) {
     if (curQuiz.answered) return;
     curQuiz.answered = true;
+    snd('click');
     const isCorrect = choiceIdx === question.answer;
     const buttons = document.querySelectorAll('.option-btn');
 
@@ -444,6 +489,7 @@ window.app = (() => {
     $('quiz-explain-text').textContent = question.explanation;
     $('quiz-explain').classList.add('show');
     $('next-btn').classList.add('show');
+    snd(isCorrect ? 'correct' : 'wrong');
 
     // Auto-advance or end
     if (curQuiz.idx >= curQuiz.questions.length - 1) {
@@ -454,6 +500,7 @@ window.app = (() => {
   }
 
   function nextQuestion() {
+    snd('click');
     if (curQuiz.idx >= curQuiz.questions.length - 1) {
       showResults(); return;
     }
@@ -526,7 +573,7 @@ window.app = (() => {
   /* ─── Results ─── */
   function showResults() {
     state.xp += curQuiz.earnedXP;
-    if (curQuiz.correct === curQuiz.questions.length) fireConfetti();
+    if (curQuiz.correct === curQuiz.questions.length) { fireConfetti(); snd('win'); }
     saveState();
 
     const pct = Math.round(curQuiz.correct / curQuiz.questions.length * 100);
@@ -702,7 +749,7 @@ window.app = (() => {
   init();
   return {
     goHome, exitQuiz, retryQuiz, showTopics, filterLevel, startRandom,
-    startTopic, showWrongBank, showStats, startWrongReview, startWrongReviewAll
+    startTopic, showWrongBank, showStats, startWrongReview, startWrongReviewAll, nextQuestion
   };
 })();
 </script>
